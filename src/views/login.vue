@@ -1,199 +1,84 @@
 <template>
-  <div class="login">
-    <h2>123</h2>
-<!--    <el-form ref="loginRef" :model="loginForm" :rules="loginRules" class="login-form">-->
-<!--      <h3 class="title">1123</h3>-->
-<!--      <el-form-item prop="username">-->
-<!--        <el-input-->
-<!--            v-model="loginForm.username"-->
-<!--            type="text"-->
-<!--            size="large"-->
-<!--            auto-complete="off"-->
-<!--            placeholder="账号"-->
-<!--        >-->
-<!--          <template #prefix><svg-icon icon-class="user" class="el-input__icon input-icon" /></template>-->
-<!--        </el-input>-->
-<!--      </el-form-item>-->
-<!--      <el-form-item prop="password">-->
-<!--        <el-input-->
-<!--            v-model="loginForm.password"-->
-<!--            type="password"-->
-<!--            size="large"-->
-<!--            auto-complete="off"-->
-<!--            placeholder="密码"-->
-<!--            @keyup.enter="handleLogin"-->
-<!--        >-->
-<!--          <template #prefix><svg-icon icon-class="password" class="el-input__icon input-icon" /></template>-->
-<!--        </el-input>-->
-<!--      </el-form-item>-->
-<!--      <el-form-item v-if="captchaEnabled" prop="code">-->
-<!--        <el-input-->
-<!--            v-model="loginForm.code"-->
-<!--            size="large"-->
-<!--            auto-complete="off"-->
-<!--            placeholder="验证码"-->
-<!--            style="width: 63%"-->
-<!--            @keyup.enter="handleLogin"-->
-<!--        >-->
-<!--          <template #prefix><svg-icon icon-class="validCode" class="el-input__icon input-icon" /></template>-->
-<!--        </el-input>-->
-<!--        <div class="login-code">-->
-<!--          <img :src="codeUrl" class="login-code-img" @click="getCode" />-->
-<!--        </div>-->
-<!--      </el-form-item>-->
-<!--      <el-checkbox v-model="loginForm.rememberMe" style="margin:0px 0px 25px 0px;">记住密码</el-checkbox>-->
-<!--      <el-form-item style="width:100%;">-->
-<!--        <el-button-->
-<!--            :loading="loading"-->
-<!--            size="large"-->
-<!--            type="primary"-->
-<!--            style="width:100%;"-->
-<!--            @click.prevent="handleLogin"-->
-<!--        >-->
-<!--          <span v-if="!loading">登 录</span>-->
-<!--          <span v-else>登 录 中...</span>-->
-<!--        </el-button>-->
-<!--        <div v-if="register" style="float: right;">-->
-<!--          <router-link class="link-type" :to="'/register'">立即注册</router-link>-->
-<!--        </div>-->
-<!--      </el-form-item>-->
-<!--    </el-form>-->
-<!--  </div>-->
-<!--  &lt;!&ndash;  底部  &ndash;&gt;-->
-<!--  <div class="el-login-footer">-->
-<!--    <span>版本构建于 {{ buildTime }}</span>-->
+  <div class="loginBox">
+    <el-form ref="loginRef" :model="loginForm">
+      <el-form-item>
+        <el-input
+            v-model="loginForm.username"
+            type="text"
+            placeholder="账号">
+          <template #prefix><span class="inputLabel">账号</span></template>
+        </el-input>
+      </el-form-item>
+      <el-form-item>
+        <el-input
+            v-model="loginForm.password"
+            type="password"
+            placeholder="请输入密码">
+          <template #prefix><span class="inputLabel">密码</span></template>
+        </el-input>
+      </el-form-item>
+      <el-form-item>
+        <el-button
+            :loading="loading"
+            size="large"
+            type="primary"
+            style="width:100%;"
+        >
+          <span v-if="!loading">登 录</span>
+          <span v-else>登 录 中...</span>
+        </el-button>
+
+      </el-form-item>
+    </el-form>
   </div>
 </template>
 
 <script setup>
+import {ref} from 'vue';
 
-// const userStore = useUserStore();
-// const router = useRouter();
-// const { proxy } = getCurrentInstance();
-//
-// const loginForm = ref({
-//   username: '',
-//   password: '',
-//   rememberMe: false,
-//   code: '',
-//   uuid: ''
-// });
-//
-// const loginRules = {
-//   username: [{ required: true, trigger: 'blur', message: '请输入您的账号' }],
-//   password: [{ required: true, trigger: 'blur', message: '请输入您的密码' }],
-//   code: [{ required: true, trigger: 'change', message: '请输入验证码' }]
-// };
-//
-// const title = ref(import.meta.env.VITE_APP_TITLE);
-// const codeUrl = ref('');
-// const loading = ref(false);
-// // 验证码开关
-// const captchaEnabled = ref(false);
-// // 注册开关
-// const register = ref(false);
-// const redirect = ref(undefined);
-//
-// const buildTime = ref(document.querySelector('meta[build-time]') ? document.querySelector('meta[build-time]').getAttribute('build-time') : '');
-//
-// function handleLogin() {
-//   proxy.$refs.loginRef.validate(valid => {
-//     if (valid) {
-//       loading.value = true;
-//       // 勾选了需要记住密码设置在 cookie 中设置记住用户名和密码
-//       if (loginForm.value.rememberMe) {
-//         Cookies.set('username', loginForm.value.username, { expires: 30 });
-//         Cookies.set('password', encrypt(loginForm.value.password), { expires: 30 });
-//         Cookies.set('rememberMe', loginForm.value.rememberMe, { expires: 30 });
-//       } else {
-//         // 否则移除
-//         Cookies.remove('username');
-//         Cookies.remove('password');
-//         Cookies.remove('rememberMe');
-//       }
-//       // 调用action的登录方法
-//       userStore.login(loginForm.value).then((res) => {
-//         if (res.data && res.data.update_pwd) {
-//           proxy.$router.push({ path: '/user/profile', state: { forcePwdFlag: true } });
-//         } else {
-//           const redirectPath = (location.href.split('redirect=')[1] || '').split('?');
-//           const query = redirectPath[1] ? urlResolve(redirectPath[1]) : undefined;
-//           router.push({ path: redirectPath[0] || '', query });
-//         }
-//       }).catch(() => {
-//         loading.value = false;
-//         // 重新获取验证码
-//         if (captchaEnabled.value) {
-//           getCode();
-//         }
-//       });
-//     }
-//   });
-// }
-//
-// function urlResolve(path) {
-//   return path.split('&').reduce((newObj, item) => {
-//     const itemArr = item.split('=');
-//     if (itemArr[0] in newObj) {
-//       Array.isArray(newObj[itemArr[0]]) ? (newObj[itemArr[0]].push(itemArr[1])) : (newObj[itemArr[0]] = [newObj[itemArr[0]], itemArr[1]]);
-//     } else {
-//       newObj[itemArr[0]] = itemArr[1];
-//     }
-//     return newObj;
-//   }, {});
-// }
-//
-// function getCode() {
-//   getCodeImg().then(res => {
-//     captchaEnabled.value = res.data.captchaEnabled === undefined ? true : res.data.captchaEnabled;
-//     if (captchaEnabled.value) {
-//       codeUrl.value = 'data:image/gif;base64,' + res.data.img;
-//       loginForm.value.uuid = res.data.uuid;
-//     }
-//   });
-// }
-//
-// function getCookie() {
-//   const username = Cookies.get('username');
-//   const password = Cookies.get('password');
-//   const rememberMe = Cookies.get('rememberMe');
-//   loginForm.value = {
-//     username: username === undefined ? loginForm.value.username : username,
-//     password: password === undefined ? loginForm.value.password : decrypt(password),
-//     rememberMe: rememberMe === undefined ? false : Boolean(rememberMe)
-//   };
-// }
-//
-// getCode();
-// getCookie();
+const loginForm = ref({
+  username: '',
+  password: ''
+});
+// 加载
+const loading = ref(false);
+
 </script>
 
 <style lang='scss' scoped>
-//.login {
-//  display: flex;
-//  justify-content: center;
-//  align-items: center;
-//  height: 100%;
-//  background-image: url("../assets/images/login-background.jpg");
-//  background-size: cover;
-//}
+.loginBox {
+  width: 100%;
+  height: 400px;
+  background-color: cadetblue;
+  position: relative;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%,-50%);
+}
+
+.inputLabel {
+  margin: 0px 10px 30px auto;
+  text-align: center;
+  color: #313131;
+}
+
+.el-form {
+
+  .el-input{
+    input {
+
+    }
+  }
+}
+
 //.title {
 //  margin: 0px auto 30px auto;
 //  text-align: center;
 //  color: #707070;
 //}
 //
-//.login-form {
-//  border-radius: 6px;
-//  background: #ffffff;
-//  width: 400px;
-//  padding: 25px 25px 5px 25px;
-//  .el-input {
-//    height: 40px;
-//    input {
-//      height: 40px;
-//    }
-//  }
+
+
 //  .input-icon {
 //    height: 39px;
 //    width: 14px;
